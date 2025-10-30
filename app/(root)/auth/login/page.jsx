@@ -166,7 +166,7 @@ export default function LoginPage() {
           </div>
         </CardContent>
         <CardFooter className="text-center text-xs md:text-sm text-gray-400 pb-2 pt-2">
-          By logging in, you agree to our{" "}
+          By logging in, you agree to our {" "}
           <Link href="/terms" className="underline hover:text-pink-400">
             terms & conditions
           </Link>

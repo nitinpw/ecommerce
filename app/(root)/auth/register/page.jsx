@@ -23,19 +23,14 @@ import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 export default function RegisterPage() {
-
-    const router = useRouter();
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
+  // React Hook Form + Zod setup
   const form = useForm({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -46,25 +41,46 @@ export default function RegisterPage() {
     },
   });
 
-  const onSubmit = async(data) => {
-    data.preventDefault();
-    setError("")
+  
+  const onSubmit = async (data) => {
+    setError("");
     setLoading(true);
-    setTimeout(() => setLoading(false), 1500);
-    
-    try{
 
-      const response = await fetch("/api/auth/register",{
+    try {
+      const response = await fetch("/api/auth/register", {
         method: "POST",
-        headers: {"Content-Type": "aplication/json"}
-      })
-    } catch{
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        }),
+      });
 
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result?.message || "Something went wrong!");
+        setError(result?.message);
+        setLoading(false);
+        return;
+      }
+
+      toast.success("Registration successful!");
+      setTimeout(() => {
+        router.push("/auth/login");
+      }, 1500);
+    } catch (err) {
+      toast.error("Network error, please try again.");
+      setError("Network error, please try again.");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="relative flex justify-center items-center min-h-screen bg-black overflow-hidden transition-colors duration-300">
+      <ToastContainer position="top-right" autoClose={3000} />
       {/* Decorative blobs */}
       <div
         className="absolute bg-purple-900/40 blur-3xl rounded-full"
@@ -92,6 +108,7 @@ export default function RegisterPage() {
           bottom: "-5vw",
         }}
       />
+
       <Card
         className="
           relative z-10
@@ -121,18 +138,13 @@ export default function RegisterPage() {
 
         <CardContent>
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6 mt-2"
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-2">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-md font-medium text-gray-200">
-                      Name
-                    </FormLabel>
+                    <FormLabel className="text-md font-medium text-gray-200">Name</FormLabel>
                     <FormControl>
                       <Input
                         type="text"
@@ -151,9 +163,7 @@ export default function RegisterPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-md font-medium text-gray-200">
-                      Email
-                    </FormLabel>
+                    <FormLabel className="text-md font-medium text-gray-200">Email</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
@@ -172,9 +182,7 @@ export default function RegisterPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-md font-medium text-gray-200">
-                      Password
-                    </FormLabel>
+                    <FormLabel className="text-md font-medium text-gray-200">Password</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -203,9 +211,7 @@ export default function RegisterPage() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-md font-medium text-gray-200">
-                      Confirm Password
-                    </FormLabel>
+                    <FormLabel className="text-md font-medium text-gray-200">Confirm Password</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -239,7 +245,6 @@ export default function RegisterPage() {
                   Create Account
                 </Button>
               )}
-
             </form>
           </Form>
 
@@ -260,19 +265,17 @@ export default function RegisterPage() {
               as="a"
               variant="outline"
               className="w-full flex items-center justify-center gap-2 rounded-xl bg-gray-900 border border-gray-800 text-pink-300 hover:bg-gray-800 text-base md:text-lg font-bold"
-                >
-                  <span>🔙</span> <Link href="/auth/login">Back to Login</Link>
-                </Button>
-
+            >
+              <span>🔙</span> <Link href="/auth/login">Back to Login</Link>
+            </Button>
           </div>
-
         </CardContent>
+
         <CardFooter className="text-center text-xs md:text-sm text-gray-400 pb-2 pt-2">
           By creating an account, you agree to our{" "}
           <a href="/terms" className="underline hover:text-pink-400">
             terms & conditions
-          </a>
-          .
+          </a>.
         </CardFooter>
       </Card>
     </div>

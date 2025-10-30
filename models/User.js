@@ -23,6 +23,33 @@ const userSchema = new Schema({
       trim: true,
       unqiue: true,
     },
+    avatar: {
+      url: {
+        type: String,
+        trim: true,
+      },
+      public_id: {
+        type: String,
+        trim: true,
+      }
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    },
+    phone: {
+      type: Number,
+      trim:true,
+    },
+    address: {
+      type: String,
+      trim: true,
+    },
+    deletedAt:{
+      type: Date,
+      default: null,
+      index: true
+    },
 },{timestamps: true}
 );
 
@@ -32,6 +59,12 @@ userSchema.pre('save', async function(next) {
   }
   next();
 });
+
+userSchema.methods = {
+  comparePassword: async function (password){
+    return await bcrypt.compare(password, this.password)
+  }
+}
 
 const User = models?.User || model('User', userSchema);
 
